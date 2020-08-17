@@ -35,23 +35,21 @@ with ur_stg as
 select
   ur.stay_id
 , ur.charttime
-, wd.patientweight
+, wd.weight
 , ur.UrineOutput_6hr
 , ur.UrineOutput_12hr
 , ur.UrineOutput_24hr
 -- calculate rates - adding 1 hour as we assume data charted at 10:00 corresponds to previous hour
-, ROUND((ur.UrineOutput_6hr/wd.patientweight/(uo_tm_6hr+1)), 4) AS uo_rt_6hr
-, ROUND((ur.UrineOutput_12hr/wd.patientweight/(uo_tm_12hr+1)), 4) AS uo_rt_12hr
-, ROUND((ur.UrineOutput_24hr/wd.patientweight/(uo_tm_24hr+1)), 4) AS uo_rt_24hr
+, ROUND((ur.UrineOutput_6hr/wd.weight/(uo_tm_6hr+1)), 4) AS uo_rt_6hr
+, ROUND((ur.UrineOutput_12hr/wd.weight/(uo_tm_12hr+1)), 4) AS uo_rt_12hr
+, ROUND((ur.UrineOutput_24hr/wd.weight/(uo_tm_24hr+1)), 4) AS uo_rt_24hr
 -- time of earliest UO measurement that was used to calculate the rate
 , uo_tm_6hr
 , uo_tm_12hr
 , uo_tm_24hr
 from ur_stg ur
 left join `aki-recovery-prediction.MimicIV.MIMICIV_weight_durations` wd
-  on  ur.icustay_id = wd.icustay_id
+  on  ur.stay_id = wd.stay_id
   and ur.charttime >= wd.starttime
   and ur.charttime <  wd.endtime
-order by icustay_id, charttime;
-
 order by stay_id, charttime;
